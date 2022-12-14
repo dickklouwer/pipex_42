@@ -3,7 +3,7 @@
 
 NAME := pipex
 
-SRCS := pipex.c parse_path.c
+SRCS := pipex.c parse_path.c utils.c
 
 SRCSDIR := srcs
 
@@ -31,7 +31,7 @@ libft:
 	@echo "$(GREEN)Building libft ...$(RESET)"
 	@$(MAKE) -C $(LIBFT)
 
-$(NAME): $(OBJDIR) $(OBJ)
+$(NAME): $(OBJDIR) $(OBJ) $(LIBFT)
 	@echo "$(GREEN)Building pipex ...$(RESET)"
 	@$(CC) $(OBJ) libft/libft.a $(INCLUDES) -o pipex
 

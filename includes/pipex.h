@@ -6,22 +6,22 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/02 13:50:49 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/13 13:47:41 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/14 09:53:43 by dickklouwer   ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include "../libft/libft.h"
+# include <fcntl.h>
+# include <stdio.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include "../libft/libft.h"
 
 int  error(char *str);
 
-typedef struct  s_data
+typedef struct s_data
 {
     char    **path_vars;
     char    *path;
@@ -30,6 +30,7 @@ typedef struct  s_data
     int     fd[2];
 }               t_data;
 
+int open_fd(t_data *data, char **argv);
 
 int parse_path(t_data *data, char **argv, char **envp);
 

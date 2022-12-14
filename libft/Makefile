@@ -6,13 +6,14 @@
 #    By: tklouwer <tklouwer@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2020/11/13 10:02:57 by tklouwer      #+#    #+#                  #
-#    Updated: 2022/11/30 14:42:49 by tklouwer      ########   odam.nl          #
+#    Updated: 2022/12/14 08:17:57 by dickklouwer   ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libft.a
 
 SRCS = 			ft_memset.c $\
+				error.c $\
 				ft_bzero.c $\
 				ft_memcpy.c $\
 				ft_memccpy.c $\

@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/05 14:57:41 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/13 10:22:18 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/14 09:34:20 by dickklouwer   ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void    command_args(t_data *data, char **argv)
     tmp1 = ft_split(argv[2], ' ');
     data->cmd1 = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
     if (!data->cmd1)
-        error("MEMORY ALLOCATION ERROR");
+        error("Memory allocation error");
     while (tmp1[i])
     {
         data->cmd1[i] = tmp1[i];
@@ -43,14 +43,19 @@ void    command_args(t_data *data, char **argv)
     free(tmp1);
 }
 
-void    env_path(t_data *data, char **envp)
+int   path_search(t_data *data, char **envp)
 {
+    data->path = NULL;
     while(!data->path)
     {
         if (ft_strnstr(*envp, "PATH=", ft_strlen(*envp)))
+        {
             data->path = ft_substr(*envp, 5, ft_strlen(*envp));
+            return (EXIT_SUCCESS);
+        }
         envp++;
     }
+    return (EXIT_FAILURE);
 }
 
 void    path_vars(t_data *data)
@@ -62,10 +67,12 @@ void    path_vars(t_data *data)
     tmp = ft_split(data->path, ':');
     data->path_vars = ft_calloc((arraylen(tmp) + 1), sizeof(char *));
     if (!data->path_vars)
-        error("MEMORY ALLOCATION ERROR");
+        error("Memory allocation error");
     while (tmp[i])
     {
         data->path_vars[i] = ft_strjoin(tmp[i], "/");
+        if (access(data->path_vars[i], X_OK))
+            error("Command not found");
         free(tmp[i]);
         i++;
     }
@@ -74,7 +81,8 @@ void    path_vars(t_data *data)
 
 int parse_path(t_data *data, char **argv, char **envp)
 {
-    env_path(data, envp);
+    if (path_search(data, envp))
+        exit(EXIT_FAILURE);
     command_args(data, argv);
     path_vars(data);
     return(EXIT_SUCCESS);
