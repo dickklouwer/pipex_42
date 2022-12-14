@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/05 14:57:41 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/14 09:34:20 by dickklouwer   ########   odam.nl         */
+/*   Updated: 2022/12/14 16:05:47 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,24 @@ void    command_args(t_data *data, char **argv)
     free(tmp1);
 }
 
+// void    command_args(t_data *data, char *argv, char **dst)
+// {
+//     int i = 0;
+//     char **tmp1;
+
+//     tmp1 = ft_split(argv, ' ');
+//     dst = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
+//     if (!dst)
+//         error("Memory allocation error");
+//     while (tmp1[i])
+//     {
+//         dst[i] = ft_strdup(tmp1[i]);
+//         free(tmp1[i]);
+//         i++;
+//     }
+//     free(tmp1);
+// }
+
 int   path_search(t_data *data, char **envp)
 {
     data->path = NULL;
@@ -73,16 +91,21 @@ void    path_vars(t_data *data)
         data->path_vars[i] = ft_strjoin(tmp[i], "/");
         if (access(data->path_vars[i], X_OK))
             error("Command not found");
+        
         free(tmp[i]);
         i++;
     }
+ 
     free(tmp);
 }
 
 int parse_path(t_data *data, char **argv, char **envp)
 {
+    data->argv = argv;
+    data->envp = envp;
     if (path_search(data, envp))
         exit(EXIT_FAILURE);
+    // data->cmd1 = command_args(data, argv[2]);
     command_args(data, argv);
     path_vars(data);
     return(EXIT_SUCCESS);

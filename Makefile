@@ -3,7 +3,7 @@
 
 NAME := pipex
 
-SRCS := pipex.c parse_path.c utils.c
+SRCS := pipex.c parse_path.c
 
 SRCSDIR := srcs
 
