@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/05 14:57:41 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/14 16:05:47 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/15 11:59:23 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,42 +24,24 @@ static int arraylen(char **arr)
     return (i);
 }
 
-void    command_args(t_data *data, char **argv)
+char    **command_args(char *argv, char **dst)
 {
     int i = 0;
     char **tmp1;
 
-    tmp1 = ft_split(argv[2], ' ');
-    data->cmd1 = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
-    if (!data->cmd1)
-        error("Memory allocation error");
+    tmp1 = ft_split(argv, ' ');
+    dst = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
+    if (!dst)
+        error("Memory allocation error", 2);
     while (tmp1[i])
     {
-        data->cmd1[i] = tmp1[i];
+        dst[i] = ft_strdup(tmp1[i]);
         free(tmp1[i]);
         i++;
     }
-    data->cmd2 = ft_strdup(argv[3]);
     free(tmp1);
+    return (dst);
 }
-
-// void    command_args(t_data *data, char *argv, char **dst)
-// {
-//     int i = 0;
-//     char **tmp1;
-
-//     tmp1 = ft_split(argv, ' ');
-//     dst = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
-//     if (!dst)
-//         error("Memory allocation error");
-//     while (tmp1[i])
-//     {
-//         dst[i] = ft_strdup(tmp1[i]);
-//         free(tmp1[i]);
-//         i++;
-//     }
-//     free(tmp1);
-// }
 
 int   path_search(t_data *data, char **envp)
 {
@@ -76,7 +58,7 @@ int   path_search(t_data *data, char **envp)
     return (EXIT_FAILURE);
 }
 
-void    path_vars(t_data *data)
+int    path_vars(t_data *data)
 {
     char    **tmp;
     int     i;
@@ -85,18 +67,15 @@ void    path_vars(t_data *data)
     tmp = ft_split(data->path, ':');
     data->path_vars = ft_calloc((arraylen(tmp) + 1), sizeof(char *));
     if (!data->path_vars)
-        error("Memory allocation error");
+        error("Memory allocation error", 2);
     while (tmp[i])
     {
         data->path_vars[i] = ft_strjoin(tmp[i], "/");
-        if (access(data->path_vars[i], X_OK))
-            error("Command not found");
-        
         free(tmp[i]);
         i++;
     }
- 
     free(tmp);
+    return (EXIT_SUCCESS);
 }
 
 int parse_path(t_data *data, char **argv, char **envp)
@@ -105,8 +84,11 @@ int parse_path(t_data *data, char **argv, char **envp)
     data->envp = envp;
     if (path_search(data, envp))
         exit(EXIT_FAILURE);
-    // data->cmd1 = command_args(data, argv[2]);
-    command_args(data, argv);
-    path_vars(data);
+    data->cmd1 = command_args(argv[2], data->cmd1);
+    data->cmd2 = command_args(argv[3], data->cmd2);
+    if (!data->cmd1 || !data->cmd2)
+        return (EXIT_FAILURE);
+    if (path_vars(data))
+        exit(EXIT_FAILURE);
     return(EXIT_SUCCESS);
 }

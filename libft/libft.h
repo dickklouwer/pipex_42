@@ -6,7 +6,7 @@
 /*   By: dickklouwer <tklouwer@student.codam.nl>      +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/10/23 11:12:19 by dickklouwer   #+#    #+#                 */
-/*   Updated: 2022/12/14 08:18:08 by dickklouwer   ########   odam.nl         */
+/*   Updated: 2022/12/15 11:04:25 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 void				*ft_calloc(size_t count, size_t size);
 
-int					error(char *str);
+int					error(char *str, int fd);
 
 int 				ft_isset(int c, char *set);
 
