@@ -11,9 +11,9 @@ OBJDIR := obj
 
 OBJ := $(addprefix $(OBJDIR)/,$(SRCS:.c=.o))
 
-CFLAGS := -Wall -Wextra -g
+CFLAGS := -Wall -Wextra -Werror -g
 
-LIBFT := libft
+LIBFT := libft/libft.a
 
 INCLUDES := -I $(LIBFT) -I includes 
 
@@ -27,13 +27,9 @@ RESET = \033[0m
 
 all: libft $(NAME)
 
-libft:
-	@echo "$(GREEN)Building libft ...$(RESET)"
-	@$(MAKE) -C $(LIBFT)
-
 $(NAME): $(OBJDIR) $(OBJ) $(LIBFT)
 	@echo "$(GREEN)Building pipex ...$(RESET)"
-	@$(CC) $(OBJ) libft/libft.a $(INCLUDES) -o pipex
+	@$(CC) $(OBJ) $(LIBFT) $(INCLUDES) -o $(NAME)
 
 $(OBJDIR)/%.o: $(addprefix $(SRCSDIR)/, %.c)
 	@echo "$(GREEN)Building object files ...$(RESET)"
@@ -42,12 +38,18 @@ $(OBJDIR)/%.o: $(addprefix $(SRCSDIR)/, %.c)
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
+$(LIBFT):
+	@echo "$(GREEN)Building libft ...$(RESET)"
+	@$(MAKE) -C libft WITH_BONUS=1
+
 clean:
 	@echo "$(RED)Cleaning ...$(RESET)"
-	@$(MAKE) -C $(LIBFT) clean
+	@$(MAKE) -C libft clean
 	@rm -rf $(OBJDIR)
 
 fclean: clean
 	@rm -rf $(NAME) $(OBJDIR)
+	@$(MAKE) -C libft fclean
+
 
 re: fclean all
