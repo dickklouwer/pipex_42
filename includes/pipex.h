@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/02 13:50:49 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/15 14:51:26 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/20 13:41:12 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,25 +20,31 @@
 # include <stdio.h>
 # include "../libft/libft.h"
 
-
 typedef struct s_data
 {
-    char    **path_vars;
-    char    **argv;
-    char    **envp;
-    char    *path;
-    char    **cmd1;
-    char    **cmd2;
-    int     end[2];
-}               t_data;
+	char	**path_vars;
+	char	**argv;
+	char	*path;
+	char	**cmd1;
+	char	**cmd2;
+}			t_data;
 
-int parse_path(t_data *data, char **argv, char **envp);
+/* 
+	PIPEX.C
+*/
+int		pipex(t_data *data, char **envp);
 
-void child_process(t_data *data);
-void child_process2(t_data *data);
+/* 
+	PARSING.C
+*/
+char	*command_path(t_data *data, char *cmd);
+int		parse_path(t_data *data, char **argv, char **envp);
 
-int pipex(t_data *data);
-
-// int parent_process()
+/* 
+	UTILS.C
+*/
+int		arraylen(char **arr);
+int		wr_dup2(int fd1, int fd2);
+int		p_error(char *str, int fd);
 
 #endif

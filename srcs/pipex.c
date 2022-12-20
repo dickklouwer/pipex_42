@@ -5,140 +5,95 @@
 /*                                                     +:+                    */
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/12/02 12:29:37 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/15 15:47:39 by tklouwer      ########   odam.nl         */
+/*   Created: 2022/12/20 10:41:39 by tklouwer      #+#    #+#                 */
+/*   Updated: 2022/12/20 14:17:22 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
-#include <stdlib.h>
 
-int wr_dup2(int fd1, int fd2)
+void	execute_command(t_data *data, char **cmd, char **envp)
 {
-    close(fd1);
-    close(fd2);
-    perror("Dup2");
-    exit (EXIT_FAILURE);   
+	char	*file_cmd;
+
+	file_cmd = command_path(data, *cmd);
+	if (!file_cmd)
+	{
+		p_error("Command not found", 127);
+	}
+	if (execve(file_cmd, cmd, envp) == -1)
+	{
+		p_error("Execve failed", 127);
+	}
+	p_error("Command execution failed", 127);
 }
 
-int	p_error(char *str, int fd)
+void	child_process(t_data *data, int *end, char **envp)
 {
-    write(2, "./pipex ", 8);
-    perror(str);
-    exit (fd);
+	int	infile;
+
+	infile = open(data->argv[1], O_RDONLY);
+	if (infile < 0)
+		p_error("", 1);
+	if (dup2(infile, STDIN_FILENO) < 0)
+		wr_dup2(infile, end[1]);
+	if (dup2(end[1], STDOUT_FILENO) < 0)
+		wr_dup2(infile, end[1]);
+	close(end[0]);
+	close(end[1]);
+	close(infile);
+	execute_command(data, data->cmd1, envp);
 }
 
-char *command_path(t_data *data, char *argv)
+void	child_process2(t_data *data, int *end, char **envp)
 {
-    char *file_cmd;
-    int i;
-    
-    i = 0;
-    while(data->path_vars[i])
-    {
-        file_cmd = ft_strjoin(data->path_vars[i], argv);
-        if (!file_cmd)
-            p_error("ft_strjoin", 2);
-        if (access(file_cmd, X_OK) == 0)
-        {
-            return (file_cmd);
-        }
-        free(file_cmd);
-        i++;
-    }
-    return (NULL);
+	int	outfile;
+
+	outfile = open(data->argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (outfile < 0)
+		p_error("", 1);
+	if (dup2(end[0], STDIN_FILENO) < 0)
+		wr_dup2(outfile, end[0]);
+	if (dup2(outfile, STDOUT_FILENO) < 0)
+		wr_dup2(outfile, end[0]);
+	close(end[0]);
+	close(end[1]);
+	close(outfile);
+	execute_command(data, data->cmd2, envp);
 }
 
-void execute_command(t_data *data, char **cmd, char *argv)
+int	parent_process(int *end, pid_t child1, pid_t child2)
 {
-    char    *file_cmd;
+	int	exit_code;
 
-    file_cmd = command_path(data, argv);
-    if (!file_cmd)
-        p_error("Command not found", 127);
-    if (execve(file_cmd, cmd, data->envp) == -1)
-        p_error("Execve", 127);
-    p_error("Command execution failed", 127);
+	close(end[0]);
+	close(end[1]);
+	waitpid(child1, &exit_code, 0);
+	waitpid(child2, &exit_code, 0);
+	if (WIFEXITED(exit_code) > 0)
+	{
+		return (WEXITSTATUS(exit_code));
+	}
+	return (exit_code);
 }
 
-void child_process(t_data *data)
+int	pipex(t_data *data, char **envp)
 {
-    int IN_FILE;
+	int		end[2];
+	pid_t	child1;
+	pid_t	child2;
 
-    IN_FILE = open(data->argv[1], O_RDONLY);
-    if (IN_FILE < 0)
-        p_error("Failed to open fd", 1);
-    if (dup2(IN_FILE, STDIN_FILENO) < 0)
-        wr_dup2(IN_FILE, data->end[1]);
-    if (dup2(data->end[1], STDOUT_FILENO) < 0)
-        wr_dup2(IN_FILE, data->end[1]);
-    close(data->end[1]);
-    close(IN_FILE);
-    execute_command(data, data->cmd1, data->argv[2]);
-}
-
-void child_process2(t_data *data)
-{
-    int OUT_FILE;
-
-    OUT_FILE = open(data->argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-    if (OUT_FILE < 0)
-        p_error("Failed to open fd", 1);
-    if (dup2(data->end[0], STDIN_FILENO) < 0)
-        wr_dup2(OUT_FILE, data->end[0]);
-    if (dup2(OUT_FILE, STDOUT_FILENO) < 0)
-        wr_dup2(OUT_FILE, data->end[0]);
-    close(data->end[0]);
-    close(data->end[1]);
-    close(OUT_FILE);
-    execute_command(data, data->cmd2, data->argv[3]);
-}
-
-int parent_process(t_data *data, pid_t child1, pid_t child2)
-{
-    int status;
-
-    
-    waitpid(child1, &status, 0);
-    waitpid(child2, &status, 0);
-    // if (WIFEXITED(status)) 
-    // {
-    //     ft_putnbr_fd(status, 1);
-    //     write(1, "\n", 1);
-    //     exit(status);
-    // }
-    close(data->end[0]);
-    close(data->end[1]);
-    return (status);
-}
-
-int pipex(t_data *data)
-{
-    pid_t child1;
-    pid_t child2;
-
-    if (pipe(data->end) < 0)
-        perror("pipe");
-    child1 = fork();
-    if (child1 < 0)
-        perror("Fork:");
-    else if (child1 == 0)
-        child_process(data);
-    child2 = fork();
-    if (child2 < 0)
-        perror("Fork");
-    else if (child2 == 0)
-        child_process2(data);
-    return (parent_process(data, child1, child2));
-}
-
-int main(int argc, char **argv, char **envp)
-{
-    t_data data;
-
-    if (argc != 5)
-        error("NOT CORRECT AMOUNT ARGS", 2);
-    if (parse_path(&data, argv, envp))
-        exit (EXIT_FAILURE);
-    return(pipex(&data));
+	if (pipe(end) < 0)
+		perror("pipe");
+	child1 = fork();
+	if (child1 < 0)
+		perror("Fork:");
+	else if (child1 == 0)
+		child_process(data, end, envp);
+	child2 = fork();
+	if (child2 < 0)
+		perror("Fork");
+	else if (child2 == 0)
+		child_process2(data, end, envp);
+	return (parent_process(end, child1, child2));
 }
