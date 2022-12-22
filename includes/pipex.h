@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/02 13:50:49 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/22 08:52:54 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/22 09:03:06 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,6 @@
 # include <stdio.h>
 # include "../libft/libft.h"
 
-typedef struct s_cmd
-{
-	char **cmd;
-	char *arg;
-	char *options;
-}			t_cmd;
-
 typedef struct s_data
 {
 	char	**path_vars;
@@ -34,7 +27,6 @@ typedef struct s_data
 	char	*path;
 	char	**cmd1;
 	char	**cmd2;
-	t_cmd	*cmd;
 }			t_data;
 
 /* 
