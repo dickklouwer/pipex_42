@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/20 10:41:39 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/20 14:17:22 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/22 09:00:19 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,12 @@
 void	execute_command(t_data *data, char **cmd, char **envp)
 {
 	char	*file_cmd;
-
-	file_cmd = command_path(data, *cmd);
+	char	*str;
+	
+	str = ft_strjoin(cmd[0], cmd[1]);
+	if (!str)
+		perror("ft_strjoin");
+	file_cmd = command_path(data, str);
 	if (!file_cmd)
 	{
 		p_error("Command not found", 127);

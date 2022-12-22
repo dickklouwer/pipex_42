@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/05 14:57:41 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/20 14:14:41 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/22 08:56:08 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@ char	*command_path(t_data *data, char *cmd)
 	int		i;
 
 	i = 0;
+	if (access(cmd, X_OK) == 0)
+	{
+		return (cmd);
+	}
 	while (data->path_vars[i])
 	{
 		file_cmd = ft_strjoin(data->path_vars[i], cmd);
