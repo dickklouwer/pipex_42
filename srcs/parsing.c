@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/05 14:57:41 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/22 08:56:08 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/22 13:08:51 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,12 @@ char	*command_path(t_data *data, char *cmd)
 
 	i = 0;
 	if (access(cmd, X_OK) == 0)
-	{
 		return (cmd);
-	}
 	while (data->path_vars[i])
 	{
 		file_cmd = ft_strjoin(data->path_vars[i], cmd);
 		if (!file_cmd)
-			p_error("ft_strjoin", 2);
+			perror("ft_strjoin");
 		if (access(file_cmd, X_OK) == 0)
 		{
 			return (file_cmd);
@@ -40,20 +38,24 @@ char	*command_path(t_data *data, char *cmd)
 char	**command_args(char *argv, char **dst)
 {
 	int		i;
-	char	**tmp1;
+	char	**tmp;
 
 	i = 0;
-	tmp1 = ft_split(argv, ' ');
-	dst = ft_calloc((arraylen(tmp1) + 1), sizeof(char *));
+	tmp = ft_split(argv, ' ');
+	if (!tmp)
+		perror("ft_split");
+	dst = ft_calloc((arraylen(tmp) + 1), sizeof(char *));
 	if (!dst)
 		error("Memory allocation error", 2);
-	while (tmp1[i])
+	while (tmp[i])
 	{
-		dst[i] = ft_strdup(tmp1[i]);
-		free(tmp1[i]);
+		dst[i] = ft_strdup(tmp[i]);
+		if (!dst[i])
+			perror("ft_strdup");
+		free(tmp[i]);
 		i++;
 	}
-	free(tmp1);
+	free(tmp);
 	return (dst);
 }
 
@@ -65,6 +67,8 @@ int	path_search(t_data *data, char **envp)
 		if (ft_strnstr(*envp, "PATH=", ft_strlen(*envp)))
 		{
 			data->path = ft_substr(*envp, 5, ft_strlen(*envp));
+			if (!data->path)
+				perror("ft_substr");
 			return (EXIT_SUCCESS);
 		}
 		envp++;
@@ -79,12 +83,16 @@ int	path_vars(t_data *data)
 
 	i = 0;
 	tmp = ft_split(data->path, ':');
+	if (!tmp)
+		perror("ft_split");
 	data->path_vars = ft_calloc((arraylen(tmp) + 1), sizeof(char *));
 	if (!data->path_vars)
 		error("Memory allocation error", 2);
 	while (tmp[i])
 	{
 		data->path_vars[i] = ft_strjoin(tmp[i], "/");
+		if (!data->path_vars[i])
+			perror("ft_strjoin");
 		free(tmp[i]);
 		i++;
 	}

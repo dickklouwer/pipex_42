@@ -6,7 +6,7 @@
 /*   By: tklouwer <tklouwer@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/12/20 10:41:39 by tklouwer      #+#    #+#                 */
-/*   Updated: 2022/12/22 09:03:23 by tklouwer      ########   odam.nl         */
+/*   Updated: 2022/12/22 13:20:02 by tklouwer      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,8 @@
 void	execute_command(t_data *data, char **cmd, char **envp)
 {
 	char	*file_cmd;
-	char	*str;
 
-	str = ft_strjoin(cmd[0], cmd[1]);
-	if (!str)
-		perror("ft_strjoin");
-	file_cmd = command_path(data, str);
+	file_cmd = command_path(data, *cmd);
 	if (!file_cmd)
 	{
 		p_error("Command not found", 127);
@@ -29,7 +25,6 @@ void	execute_command(t_data *data, char **cmd, char **envp)
 	{
 		p_error("Execve failed", 127);
 	}
-	p_error("Command execution failed", 127);
 }
 
 void	child_process(t_data *data, int *end, char **envp)
@@ -44,7 +39,6 @@ void	child_process(t_data *data, int *end, char **envp)
 	if (dup2(end[1], STDOUT_FILENO) < 0)
 		wr_dup2(infile, end[1]);
 	close(end[0]);
-	close(end[1]);
 	close(infile);
 	execute_command(data, data->cmd1, envp);
 }
@@ -60,7 +54,6 @@ void	child_process2(t_data *data, int *end, char **envp)
 		wr_dup2(outfile, end[0]);
 	if (dup2(outfile, STDOUT_FILENO) < 0)
 		wr_dup2(outfile, end[0]);
-	close(end[0]);
 	close(end[1]);
 	close(outfile);
 	execute_command(data, data->cmd2, envp);
